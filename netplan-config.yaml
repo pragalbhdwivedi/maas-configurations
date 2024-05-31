@@ -1,0 +1,54 @@
+# This is the netplan configuration file for configuring network interfaces using Open vSwitch (OVS)
+# Hosted on GitHub: https://github.com/hitmanpragalbh/maas-configurations
+
+network:
+  version: 2
+  ethernets:
+    # Configuration for the PXE boot interface
+    eno1:
+      dhcp4: true
+      dhcp6: false
+
+  # Configuration for the bonded interfaces using Open vSwitch
+  bonds:
+    bond0:
+      interfaces:
+        - eno2
+        - eno3
+        - eno4
+      parameters:
+        mode: balance-tcp
+
+  # Configuration for the Open vSwitch bridge
+  bridges:
+    br0:
+      interfaces:
+        - bond0
+      dhcp4: false
+      dhcp6: false
+      openvswitch: {}
+      addresses: []
+      gateway4: 10.176.42.1
+      nameservers:
+        addresses:
+          - 8.8.8.8
+          - 8.8.4.4
+
+  vlans:
+    vlan102:
+      id: 102
+      link: br0
+      dhcp4: true
+      dhcp6: true
+
+    vlan101:
+      id: 101
+      link: br0
+      dhcp4: true
+      dhcp6: true
+
+    vlan103:
+      id: 103
+      link: br0
+      dhcp4: true
+      dhcp6: true
