@@ -43,30 +43,11 @@ configure_ovs() {
   ovs-vsctl add-br vlan$VLAN_STORAGE $BRIDGE_NAME $BRIDGE_NAME.$VLAN_STORAGE
   ovs-vsctl add-br vlan$VLAN_PUBLIC $BRIDGE_NAME $BRIDGE_NAME.$VLAN_PUBLIC
 
-  # Enable DHCP for IPv4 and IPv6 on the VLAN interfaces
-  cat <<EOF > /etc/netplan/01-netcfg.yaml
-network:
-  version: 2
-  ethernets:
-    $PXE_INTERFACE:
-      dhcp4: true
-    $BRIDGE_NAME:
-      dhcp4: false
-  bridges:
-    vlan$VLAN_TENANT:
-      interfaces: [$BRIDGE_NAME.$VLAN_TENANT]
-      dhcp4: true
-      dhcp6: true
-    vlan$VLAN_STORAGE:
-      interfaces: [$BRIDGE_NAME.$VLAN_STORAGE]
-      dhcp4: true
-      dhcp6: true
-    vlan$VLAN_PUBLIC:
-      interfaces: [$BRIDGE_NAME.$VLAN_PUBLIC]
-      dhcp4: true
-      dhcp6: true
-EOF
+  # Download the netplan configuration file from GitHub
+  echo "Downloading netplan configuration from GitHub..."
+  curl -L https://raw.githubusercontent.com/hitmanpragalbh/maas-configurations/main/netplan-config.yaml -o /etc/netplan/01-netcfg.yaml
 
+  # Apply the netplan configuration
   echo "Applying netplan configuration..."
   netplan apply
 }
