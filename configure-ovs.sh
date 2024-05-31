@@ -38,14 +38,17 @@ configure_ovs() {
     ovs-vsctl add-port $BRIDGE_NAME $iface
   done
 
-  # Configure VLANs on the bridge
-  ovs-vsctl add-br vlan$VLAN_TENANT $BRIDGE_NAME $BRIDGE_NAME.$VLAN_TENANT
-  ovs-vsctl add-br vlan$VLAN_STORAGE $BRIDGE_NAME $BRIDGE_NAME.$VLAN_STORAGE
-  ovs-vsctl add-br vlan$VLAN_PUBLIC $BRIDGE_NAME $BRIDGE_NAME.$VLAN_PUBLIC
+  # Add VLANs on the bridge
+  ovs-vsctl add-port $BRIDGE_NAME vlan$VLAN_TENANT tag=$VLAN_TENANT -- set interface vlan$VLAN_TENANT type=internal
+  ovs-vsctl add-port $BRIDGE_NAME vlan$VLAN_STORAGE tag=$VLAN_STORAGE -- set interface vlan$VLAN_STORAGE type=internal
+  ovs-vsctl add-port $BRIDGE_NAME vlan$VLAN_PUBLIC tag=$VLAN_PUBLIC -- set interface vlan$VLAN_PUBLIC type=internal
 
   # Download the netplan configuration file from GitHub
   echo "Downloading netplan configuration from GitHub..."
   curl -L https://raw.githubusercontent.com/hitmanpragalbh/maas-configurations/main/netplan-config.yaml -o /etc/netplan/01-netcfg.yaml
+
+  # Set correct permissions for the netplan configuration file
+  chmod 600 /etc/netplan/01-netcfg.yaml
 
   # Apply the netplan configuration
   echo "Applying netplan configuration..."
